@@ -339,6 +339,10 @@ public class BpTreeMap <K extends Comparable <K>, V>
 		} // if
 
 		if (DEBUG) print (root, 0);
+		while ((Node)firstLeaf.ref[0] != null){
+		    firstLeaf = (Node)firstLeaf.ref[last.nkeys];
+		}
+		keyCount++;
 		return rt;                                                           // return right node
 	    } // insert
 
