@@ -19,10 +19,7 @@ import static java.lang.System.out;
  * the largest key in its left subtree (largest left).  Keys in left subtree are "<=",
  * while keys in right subtree are ">".
  */
-public class BpTreeMap <K extends Comparable <K>, V>
-    extends AbstractMap <K, V>
-    implements Serializable, Cloneable, SortedMap <K, V>
-{
+public class BpTreeMap <K extends Comparable <K>, V>{
     /** The debug flag
      */
     private static final boolean DEBUG = true;
@@ -210,10 +207,11 @@ public class BpTreeMap <K extends Comparable <K>, V>
     public K lastKey () 
     {
 	Node last = root;
-	while ((Node)last.ref[last.nkeys] != null){
-	    last = (Node)last.ref[last.nkeys]; 
+	last = (Node)last.ref[last.nKeys];
+	while (last.nKeys >= 1){
+	    last = (Node)last.ref[last.nKeys]; 
 	}
-        return last.key[last.nkeys-1];    
+        return last.key[last.nKeys-1];    
     }// lastKey 
 
     /********************************************************************************
@@ -304,67 +302,65 @@ public class BpTreeMap <K extends Comparable <K>, V>
 		rt = insert (key, ref, (Node) n.ref[i]);                         // recursive call to insert
 		if (DEBUG) out.println ("insert: handle internal node level");
 		Node parent = null;
-		K largest_left = n.key[n.nkeys-1];
+		K largest_left = n.key[n.nKeys-1];
 		while (hasSplit){
 		    i = parent.find (largest_left);
 		    while ((Node)parent.ref[i] != n){
 			parent = (Node)parent.ref[i];
 			i = parent.find(largest_left);
 		    }
-		    if (parent.nkeys < ORDER - 1){
-			wedge(largest_left, n, parent, i);
-			(Node)parent.ref[i+1]=(Node)n.ref[n.nkeys];
+		    if (parent.nKeys < ORDER - 1){
+			wedge(largest_left, parent.ref[i], parent, i, true);
+			parent.ref[i+1]=(Node)n.ref[n.nKeys];
 			hasSplit = false;
 		    } 
 		    else{
 			rt = split(largest_left, n, parent, true);
 			i = parent.find(largest_left);
 			if (largest_left.compareTo(parent.key[i]) == 0){
-			    (Node)parent.ref[i+1]=(Node)n.ref[n.nkeys];
-			    else{
-				i = rt.find(largest_left);
-				(Node)rt.ref[i+1]=(Node)n.ref[n.nkeys];
-			    }
-			    largest_left = parent.key[nkeys-1];
-			    parent.key[nkeys-1] = null;
-			    n = parent;
-			    if (n = root){
-				root = makeRoot (n, n.key[n.nKeys-1], rt);
-				hasSplit = false;
-			    }
+			    parent.ref[i+1]=(Node)n.ref[n.nKeys];
+			}
+			else{
+			    i = rt.find(largest_left);
+			    rt.ref[i+1]=(Node)n.ref[n.nKeys];
+			}
+			largest_left = parent.key[parent.nKeys-1];
+			parent.key[parent.nKeys-1] = null;
+			n = parent;
+			if (n == root){
+			    root = makeRoot (n, n.key[n.nKeys-1], rt);
+		            hasSplit = false;
 			}
 			
 		    }
 
 		} // if
 
-		if (DEBUG) print (root, 0);
-		while ((Node)firstLeaf.ref[0] != null){
-		    firstLeaf = (Node)firstLeaf.ref[last.nkeys];
-		}
-		keyCount++;
-		return rt;                                                           // return right node
-	    } // insert
+	    } 
+	    // insert
+	    if (DEBUG) print (root, 0);
+	    keyCount++;
+	    return rt; //return right node
 
-    /
+	}
+ 
 
-********************************************************************************
+/********************************************************************************
     * Make a new root, linking to left and right child node, separated by a divider key.
      * @param ref0  the reference to the left child node
      * @param key0  the divider key - largest left
      * @param ref1  the reference to the right child node
      * @return  the node for the new root
      */
-				     private Node makeRoot (Node ref0, K key0, Node ref1)
-				     {
-					 Node nr   = new Node (ORDER, false);                          // make a node to become the new root
-					 nr.nKeys  = 1;                                                
-					 nr.ref[0] = ref0;                                             // reference to left node
-					 nr.key[0] = key0;                                             // divider key - largest left
-					 nr.ref[1] = ref1;                                             // reference to right node
-					 return nr;
-				     } // makeRoot
-    
+private Node makeRoot (Node ref0, K key0, Node ref1){
+    Node nr   = new Node (ORDER, false);                                           // make a node to become the new root
+    nr.nKeys  = 1;                                                
+    nr.ref[0] = ref0;                                             // reference to left node
+    nr.key[0] = key0;                                             // divider key - largest left
+    nr.ref[1] = ref1;                                             // reference to right node
+    return nr;
+} // makeRoot
+
 /********************************************************************************
  * Wedge the key-ref pair into node n.  Shift right to make room if needed.
  * @param key   the key to insert
@@ -413,8 +409,8 @@ private Node split (K key, Object ref, Node n, boolean left)
     return null;                                                      // no new node created as key is duplicate
 } // split
 
-    /
-********************************************************************************
+
+/********************************************************************************
      * The main method used for testing.
     * @param  the command-line arguments (args[0] gives number of keys to insert)
      */
