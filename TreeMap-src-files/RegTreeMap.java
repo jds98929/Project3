@@ -1,5 +1,5 @@
 /************************************************************************************
- * @file BpTreeMap.java
+ * @file RegTreeMap.java
  *
  * @author  John Miller
  */
@@ -269,7 +269,7 @@ implements Serializable, Cloneable, SortedMap <K, V>
 	@SuppressWarnings("unchecked")
 	private void print (Node n, int level)
 	{
-		out.println ("BpTreeMap");
+		out.println ("RegTreeMap");
 		out.println ("-------------------------------------------");
 
 		for (int j = 0; j < level; j++) out.print ("\t");
@@ -325,7 +325,7 @@ implements Serializable, Cloneable, SortedMap <K, V>
 						size++;
 						break;
 					} else if (key.equals (k_i)) {
-						out.println ("BpTreeMap.insert: attempt to insert duplicate key = " + key);
+						out.println ("RegTreeMap.insert: attempt to insert duplicate key = " + key);
 						inserted = true;
 						break;
 					} // if
@@ -334,23 +334,14 @@ implements Serializable, Cloneable, SortedMap <K, V>
 			} else {
 				for (int i = 0; i < n.nKeys; i++) {
 					if (key.equals (n.key[i])) {	
-						out.println ("BpTreeMap.insert: attempt to insert duplicate key = " + key);
+						out.println ("RegTreeMap.insert: attempt to insert duplicate key = " + key);
 						return null;				
 					} // if
 				} // for
 				if(!inserted){
 					Node sib = splitL (key, ref, n);	
-					//					present = new Node(false);    // part of the old code that didnt work out
-					//					present.key[0] = n.key[n.nKeys-1];
-					//					present.ref[0] = n;
-					//					present.ref[1] = sib;
-					//					presentThere = true;
-					//					present.nKeys++;
 					if(n == root) // The base Case
 					{
-						//						out.println("If n = root"); // more of the old method code
-						//						root = present;
-						//						presentThere = false;
 						Node newRoot = new Node (false);
 						root = newRoot;
 						root.key[0] = n.key[n.nKeys - 1];	
@@ -365,68 +356,7 @@ implements Serializable, Cloneable, SortedMap <K, V>
 				}//if
 			} // if
 		}
-		//Attempt at implementing the further methods past the initial root creation. Didn't work, had to alter logic 
-		//		 else {                                         // handle internal node
-		//
-		//			//  T O   B E   I M P L E M E N T E D
-		//
-		//			out.println("Else not a leaf");
-		//			if(!presentThere){
-		//
-		//				int insertRef = 0;
-		//				if (n.nKeys < ORDER - 1) {
-		//					for (int i = 0; i < n.nKeys; i++) {
-		//						K k_i = n.key [i];
-		//						if (key.compareTo (k_i) > 0) {
-		//							//return insert(key, ref, (Node) n.ref[i]);
-		//							insertRef++;
-		//							//inserted = true;
-		//						} else if (key.equals (k_i)) {
-		//							out.println ("BpTreeMap.insert: attempt to insert duplicate key = " + key);
-		//							//inserted = true;
-		//							break;
-		//						} // if
-		//					} // for
-		//
-		//				}
-		//				return insert(key,ref, (Node) n.ref[insertRef]);
-		//			}
-		//			else{
-		//				inserted = false;
-		//				Node right = null;
-		//				for(int i = 0; i < n.nKeys; i++){				
-		//					if(key.compareTo (n.key[i]) < 0){
-		//						right = insert(key, ref, (Node)n.ref[i]);		
-		//						inserted = true;
-		//						break;
-		//					}
-		//				}
-		//				if(!inserted){
-		//					right = insert(key, ref, (Node) n.ref[n.nKeys]);
-		//				}
-		//				if(right != null){
-		//					Node left = (Node)right.ref[ORDER-1];
-		//					right.ref[ORDER - 1] = null;	
-		//					Node sib = right.isLeaf ? splitI(left.key[left.nKeys - 1], (BpTreeMap<K, V>.Node)right, n) : splitI(left.key[left.nKeys], (BpTreeMap<K, V>.Node)right, n);
-		//					
-		//					if(n == root){
-		//						Node newRoot = new Node(false);
-		//						root = newRoot;
-		//						
-		//						root.key[0] = n.key[n.nKeys];
-		//						root.ref[0] = n;
-		//						root.ref[1] = sib;
-		//						
-		//						newRoot.nKeys++;
-		//					}
-		//					else{
-		//						return sib;
-		//					}
-		//				
-		//				}
-		//			}
-		//
-		//		} // if
+		
 		else {                                         // handle internal node
 			Node right = null;
 			int i;
@@ -445,24 +375,24 @@ implements Serializable, Cloneable, SortedMap <K, V>
 					Node left = (Node)right.ref[ORDER - 1];	
 					right.ref[ORDER - 1] = null;	
 					i = inserted ? i : n.nKeys;	
-					K tempKey = right.isLeaf ? left.key[left.nKeys - 1] : left.key[left.nKeys];																					//If the returned sibling is a leaf, the key will be in the nKeys-1 slot of left. If it's not a leaf, the returned key will be in the nKeys slot of left.
-					wedgeI(tempKey, (V)right, n, i); //Wedge in based on the final entry past nKeys that does NOT have a reference after it.
+					K tempKey = right.isLeaf ? left.key[left.nKeys - 1] : left.key[left.nKeys];																					
+					wedgeI(tempKey, (V)right, n, i); 
 				}//if
 			}
 			else{
-				for(i = 0; i < n.nKeys; i++){				//Find where we would like to insert it.
+				for(i = 0; i < n.nKeys; i++){				//find insert location
 					if(key.compareTo (n.key[i]) < 0){
-						right = insert(key, ref, (Node)n.ref[i]);		//If we find it, insert it. Right will store the returned right sibling if the insert overflows.
+						right = insert(key, ref, (Node)n.ref[i]);		//if found, insert
 						inserted = true;
 						break;
 					}//if
 				}//for
 				if(!inserted){
-					right = insert(key, ref, (Node)n.ref[n.nKeys]);		//We did not find an insertion point earlier and know we want to throw it into the final reference slot. Right will store the returned right sibling if the insert overflows.
+					right = insert(key, ref, (Node)n.ref[n.nKeys]);		//insertion point not found
 				}//if
 				if(right != null){
 					Node left = (Node)right.ref[ORDER-1];
-					right.ref[ORDER - 1] = null;	//Clean up, clean up, everybody it's time for clean up.
+					right.ref[ORDER - 1] = null;	
 					Node sib = right.isLeaf ? splitI(left.key[left.nKeys - 1], right, n) : splitI(left.key[left.nKeys], right, n);
 					if(n == root){
 						Node newRoot = new Node(false);
@@ -479,7 +409,7 @@ implements Serializable, Cloneable, SortedMap <K, V>
 			}//if
 		} // if	
 		if (DEBUG) print (root, 0);
-		return null;                                     // FIX: return useful information
+		return null;                                     
 	} // insert
 
 	/********************************************************************************
@@ -509,8 +439,6 @@ implements Serializable, Cloneable, SortedMap <K, V>
 	 */
 	private void wedgeI (K key, V ref, Node n, int i)
 	{
-		//  DONE
-		//out.println ("wedgeI not implemented yet");
 		if(((Node) ref).key[((Node)ref).nKeys - 1].compareTo(key) <= 0){
 			n.ref[n.nKeys+1] = n.ref[n.nKeys];
 			for (int j = n.nKeys; j > i; j--) {
@@ -541,8 +469,6 @@ implements Serializable, Cloneable, SortedMap <K, V>
 	 */
 	private Node splitL (K key, V ref, Node n)
 	{
-		// DONE
-		//out.println ("splitL not implemented yet");
 		Node rt = new Node (true);
 		for(int i = 0; i < n.nKeys - MID; i++)
 		{
@@ -572,9 +498,8 @@ implements Serializable, Cloneable, SortedMap <K, V>
 	 */
 	private Node splitI (K key, Node ref, Node n)
 	{
-		//out.println ("splitI not implemented yet");
 		Node rt = new Node (false);
-		for(int i = 0; i < n.nKeys - MID; i++){		//Split the node into 2.
+		for(int i = 0; i < n.nKeys - MID; i++){		//split node
 			rt.key[i] = n.key[i + MID];
 			rt.ref[i] = n.ref[i + MID];
 			n.key[i + MID] = null;
@@ -623,22 +548,22 @@ implements Serializable, Cloneable, SortedMap <K, V>
 	{
 		int totalKeys    = 25;
 		boolean RANDOMLY = false;
-		RegTreeMap <Integer, Integer> bpt = new RegTreeMap <> (Integer.class, Integer.class);
+		RegTreeMap <Integer, Integer> rt = new RegTreeMap <> (Integer.class, Integer.class);
 		if (args.length == 1) totalKeys = Integer.valueOf (args [0]);
 		if (RANDOMLY) {
 			Random rng = new Random ();
-			for (int i = 1; i <= totalKeys; i += 2) bpt.put (rng.nextInt (2 * totalKeys), i * i);
+			for (int i = 1; i <= totalKeys; i += 2) rt.put (rng.nextInt (2 * totalKeys), i * i);
 		} else {
-			for (int i = 1; i <= totalKeys; i += 2) bpt.put (i, i * i);
+			for (int i = 1; i <= totalKeys; i += 2) rt.put (i, i * i);
 		} // if
-		bpt.print (bpt.root, 0);
+		rt.print (rt.root, 0);
 		for (int i = 0; i <= totalKeys; i++) {
-			out.println ("key = " + i + " value = " + bpt.get (i));
+			out.println ("key = " + i + " value = " + rt.get (i));
 		} // for
 		out.println ("-------------------------------------------");
-		out.println ("Average number of nodes accessed = " + bpt.count / (double) totalKeys);
+		out.println ("Average number of nodes accessed = " + rt.count / (double) totalKeys);
 	} // main
 
-} // BpTreeMap class
+} // RegTreeMap class
 
 
