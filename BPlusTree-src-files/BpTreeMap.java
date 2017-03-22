@@ -175,7 +175,7 @@ public class BpTreeMap <K extends Comparable <K>, V>{
         for (int i = 0; i < curr.nKeys; i++)
             ent.add(new AbstractMap.SimpleEntry(curr.key[i], get(curr.key[i])));
 
-        if ( ! currNode.isLeaf) {
+        if ( ! curr.isLeaf) {
             for (int i = 0; i <= curr.nKeys; i++)
                 addPairs ((Node) curr.ref[i], ent);
         }
