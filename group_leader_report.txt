@@ -1,0 +1,15 @@
+Project 3 Group Leader Report
+Emily Jackson
+
+Group members: Emily Jackson (leader), Kathryn Soll, Anthony Zheng, Jacob Shaw
+Group: Heapsters
+
+Project 3 was done through GitHub with not much in-person interaction. We divided the responsibilities into BpTreeMap and TreeMap. Emily and Kathryn worked on TreeMap, while Anthony and Jacob worked on BpTreeMap.
+
+Each of the members contributed and worked together very well.
+
+
+Project 3 Schedule of meetings:
+3/15/2017: 6:00 PM – 7:00 PM
+All other communication was completed via GroupMe and GitHub.
+
