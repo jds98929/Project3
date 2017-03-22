@@ -399,7 +399,7 @@ implements Serializable, Cloneable, SortedMap <K, V>
 				}
 			}
 		}
-	}
+	
 	if (DEBUG) print (root, 0);
 	return null;                                   	
 } // insert
@@ -413,7 +413,13 @@ implements Serializable, Cloneable, SortedMap <K, V>
  */
 private void wedgeL (K key, V ref, Node n, int i)
 {
-	//  T O   B E   I M P L E M E N T E D
+	for (int j = n.nKeys; j > i; j--) {
+			n.key [j] = n.key [j-1];
+			n.ref [j] = n.ref [j-1];
+		} // for
+		n.key [i] = key;
+		n.ref [i] = ref;
+		n.nKeys++;
 } // wedgeL
 
 /********************************************************************************
@@ -425,12 +431,29 @@ private void wedgeL (K key, V ref, Node n, int i)
  */
 private void wedgeI (K key, V ref, Node n, int i)
 {
-	//  T O   B E   I M P L E M E N T E D
+	if(((Node) ref).key[((Node)ref).nKeys - 1].compareTo(key) <= 0){
+			n.ref[n.nKeys+1] = n.ref[n.nKeys];
+			for (int j = n.nKeys; j > i; j--) {
+				n.key [j] = n.key [j-1];
+				n.ref [j] = n.ref [j-1];
+			} // for
+			n.key[i] = key;
+			n.ref[i] = ref;
+		}
+		else{
+			for (int j = n.nKeys; j > i; j--) {
+				n.key [j] = n.key [j-1];
+				n.ref [j+1] = n.ref [j-1];
+			} // for
+			n.key[i] = key;
+			n.ref[i+1] = ref;
+		}
+		n.nKeys++;
 } // wedgeI
 
 /********************************************************************************
  * Split leaf node n and return the newly created right sibling node rt.
- * Split first (MID keys for both node n and node rt), then add the new key and ref.
+ * Split then add the new key and ref.
  * @param key  the new key to insert
  * @param ref  the new value/node to insert
  * @param n    the current node
@@ -438,7 +461,23 @@ private void wedgeI (K key, V ref, Node n, int i)
  */
 private Node splitL (K key, V ref, Node n)
 {
-	//  T O   B E   I M P L E M E N T E D
+	Node rt = new Node (true);
+		for(int i = 0; i < n.nKeys - MID; i++)
+		{
+			rt.ref[i] = n.ref[MID+i];
+			rt.key[i] = n.key[MID+i];
+			n.key[MID + i] = null;
+			n.ref[MID + i] = null;
+			rt.nKeys++;
+		}//for
+		rt.ref[ORDER - 1 - MID] = n.ref[ORDER - 1];	
+		n.nKeys -= MID;
+		if(n.ref[ORDER - 1] == null){
+			rt.ref[ORDER - 1] = n;
+		}//if
+		insert(key, ref, key.compareTo(n.key[n.nKeys - 1]) <= 0 ? n : rt);
+		n.ref[n.nKeys] = rt;
+		return rt;
 } // splitL
 
 /********************************************************************************
@@ -451,7 +490,47 @@ private Node splitL (K key, V ref, Node n)
  */
 private Node splitI (K key, Node ref, Node n)
 {
-	//  T O   B E   I M P L E M E N T E D
+	Node rt = new Node (false);
+		for(int i = 0; i < n.nKeys - MID; i++){
+			//split node
+			rt.key[i] = n.key[i + MID];
+			rt.ref[i] = n.ref[i + MID];
+			n.key[i + MID] = null;
+			n.ref[i + MID] = null;
+			rt.nKeys++;
+		}//for
+		n.nKeys = n.nKeys - (MID + 1);
+		rt.ref[ORDER - 1 - MID] = n.ref[ORDER -1];
+		boolean inserted = false;
+		if(key.compareTo(n.key[n.nKeys]) <= 0){
+			rt.ref[ORDER -1] = n;
+			K temp = n.key[n.nKeys];
+			for(int i = 0; i < n.nKeys; i++){
+				if(key.compareTo(n.key[i]) <= 0){
+					wedgeI(key, (V) ref, n, i);
+					inserted = true;
+					break;
+				}//if
+			}//for
+			if(!inserted){
+				wedgeI(key, (V) ref, n, n.nKeys);
+			}//if
+			n.key[n.nKeys] = temp;
+		}
+		else{
+			for(int i = 0; i < rt.nKeys; i++){
+				if(key.compareTo (rt.key[i]) <= 0){
+					wedgeI(key, (V) ref, rt, i);
+					inserted = true;
+					break;
+				}//if
+			}//for
+			if(!inserted){
+				wedgeI(key, (V) ref, rt, rt.nKeys);
+			}//if
+			rt.ref[ORDER - 1] = n;		
+		}//if
+		return rt;
 } // splitI
 
 /********************************************************************************
@@ -460,9 +539,25 @@ private Node splitI (K key, Node ref, Node n)
  */
 public static void main (String [] args)
 {
-	//  T O   B E   I M P L E M E N T E D
-} // main
+	int totalKeys    = 25;
+		boolean RANDOMLY = false;
+		TreeMap <Integer, Integer> tree = new TreeMap <> (Integer.class, Integer.class);
+		if (args.length == 1) totalKeys = Integer.valueOf (args [0]);
+		if (RANDOMLY) {
+			Random rng = new Random ();
+			for (int i = 1; i <= totalKeys; i += 2) tree.put (rng.nextInt (2 * totalKeys), i * i);
+		} else {
+			for (int i = 1; i <= totalKeys; i += 2) tree.put (i, i * i);
+		} // if
+		tree.print (tree.root, 0);
+		for (int i = 0; i <= totalKeys; i++) {
+			out.println ("key = " + i + " value = " + tree.get (i));
+		} // for
+		out.println ("-------------------------------------------");
+		out.println ("Average number of nodes accessed = " + tree.count / (double) totalKeys);
+	} // main
 
 } // TreeMap class
+
 
 
