@@ -373,7 +373,7 @@ public class Table
                             }
                         }
                     }
-                }			
+                }
             }
             for(Comparable[] tup2 : table2.tuples){
                 int tup_count = 0;
