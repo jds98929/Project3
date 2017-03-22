@@ -202,7 +202,7 @@ public class BpTreeMap <K extends Comparable <K>, V>{
     public K lastKey () 
     {
 	Node last = root;                                              // copy of root
-	last_child = (Node)last.ref[last.nKeys];                       // rightmost child of copy
+	Node last_child = (Node)last.ref[last.nKeys];                       // rightmost child of copy
 	while (last_child.nKeys > 0){                                  // while right child exists
 	    last = last_child;                                           
 	    last_child = (Node)last_child.ref[last_child.nKeys];       // traverse right and down the tree 
@@ -269,7 +269,6 @@ public class BpTreeMap <K extends Comparable <K>, V>{
      * @return  the newly allocated right sibling node of n 
      */
     @SuppressWarnings("unchecked")
-<<<<<<< HEAD
 	private Node insert (K key, V ref, Node n)
 	{
 	    out.println ("=============================================================");
