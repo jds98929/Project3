@@ -1,4 +1,4 @@
-/************************************************************************************
+/**
  * @file BpTreeMap.java
  *
  * @author  John Miller
@@ -11,8 +11,10 @@ import java.util.*;
 import static java.lang.Math.ceil;
 import static java.lang.System.out;
 
-/************************************************************************************
- * The BpTreeMap class provides B+Tree maps.  B+Trees are used as multi-level index
+/**
+ * The BpTreeMap class provides B+Tree maps.
+ *
+ * B+Trees are used as multi-level index
  * structures that provide efficient access for both point queries and range queries.
  * All keys will be at the leaf level with leaf nodes linked by references.
  * Internal nodes will contain divider keys such that each divider key corresponds to
@@ -20,8 +22,7 @@ import static java.lang.System.out;
  * while keys in right subtree are ">".
  */
 public class BpTreeMap <K extends Comparable <K>, V>{
-    /** The debug flag
-    */
+    /* The debug flag */
     private static final boolean DEBUG = true;
 
     /** The maximum fanout (number of children) for a B+Tree node.
@@ -45,7 +46,7 @@ public class BpTreeMap <K extends Comparable <K>, V>{
     */
     private final Class <V> classV;
 
-    /********************************************************************************
+    /**
      * This inner class defines nodes that are stored in the B+tree map.
      */
     private class Node
@@ -91,7 +92,7 @@ public class BpTreeMap <K extends Comparable <K>, V>{
          * @param k  the key to be matched.
          * @return  the position of match within node, where nKeys indicates no match
          */
-        int find (K k)  
+        int find (K k)
         {
             for (int i  = 0; i < nKeys; i++) if (k.compareTo (key[i]) <= 0) return i;
             return nKeys;
@@ -108,28 +109,22 @@ public class BpTreeMap <K extends Comparable <K>, V>{
 
     } // Node inner class
 
-    /** The root of the B+Tree
-    */
+    /* The root of the B+Tree */
     private Node root;
 
-    /** The first (leftmost) leaf in the B+Tree
-    */
+    /* The first (leftmost) leaf in the B+Tree */
     private final Node firstLeaf;
 
-    /** A big node to hold all keys and references/pointers before splitting
-    */
+    /* A big node to hold all keys and references/pointers before splitting */
     private final Node bn;
 
-    /** Flag indicating whether a split at the level below has occurred that needs to be handled 
-    */
+    /* Flag indicating whether a split at the level below has occurred that needs to be handled */
     private boolean hasSplit = false;
 
-    /** The counter for the number nodes accessed (for performance testing)
-    */
+    /* The counter for the number nodes accessed (for performance testing) */
     private int count = 0;
 
-    /** The counter for the total number of keys in the B+Tree Map
-    */
+    /* The counter for the total number of keys in the B+Tree Map */
     private int keyCount = 0;
 
     /********************************************************************************
@@ -155,6 +150,36 @@ public class BpTreeMap <K extends Comparable <K>, V>{
         return null;
     } // comparator
 
+    /********************************************************************************
+     * Return a set containing all the entries as pairs of keys and values.
+     * @return  the set view of the map
+     */
+    public Set <Map.Entry <K, V>> entrySet ()
+    {
+        Set <Map.Entry <K, V>> enSet = new HashSet <> ();
+
+        Node startingNode = root;
+
+        addPairs(startingNode, enSet);
+
+        return enSet;
+    } // entrySet
+
+    /**
+     * addPairs
+     *
+     * Traverses B+Tree and creates a set of
+     * KV values.
+     */
+    public void addPairs (Node curr, Set <Map.Entry <K, V>> ent) {
+        for (int i = 0; i < curr.nKeys; i++)
+            ent.add(new AbstractMap.SimpleEntry(curr.key[i], get(curr.key[i])));
+
+        if ( ! curr.isLeaf) {
+            for (int i = 0; i <= curr.nKeys; i++)
+                addPairs ((Node) curr.ref[i], ent);
+        }
+    }
 
     /********************************************************************************
      * Given the key, look up the value in the B+Tree map.
@@ -225,22 +250,22 @@ public class BpTreeMap <K extends Comparable <K>, V>{
      * @param level  the current level of the B+Tree
      */
     @SuppressWarnings("unchecked")
-     private void print (Node n, int level)
-	{
-	    if (n == root) out.println ("BpTreeMap");
-	    out.println ("-------------------------------------------");
-	    
-	    for (int j = 0; j < level; j++) out.print ("\t");
-	    out.print ("[ . ");
-	    for (int i = 0; i < n.nKeys; i++) out.print (n.key[i] + " . ");
-	    out.println ("]");
-	    if ( ! n.isLeaf) {
-		for (int i = 0; i <= n.nKeys; i++) print ((Node) n.ref[i], level + 1);
-	    } // if
+    private void print (Node n, int level)
+    {
+        if (n == root) out.println ("BpTreeMap");
+        out.println ("-------------------------------------------");
 
-	    if (n == root) out.println ("-------------------------------------------");
-	    
-	} // print
+        for (int j = 0; j < level; j++) out.print ("\t");
+        out.print ("[ . ");
+        for (int i = 0; i < n.nKeys; i++) out.print (n.key[i] + " . ");
+        out.println ("]");
+        if ( ! n.isLeaf) {
+            for (int i = 0; i <= n.nKeys; i++) print ((Node) n.ref[i], level + 1);
+        } // if
+
+        if (n == root) out.println ("-------------------------------------------");
+
+    } // print
 
     /********************************************************************************
      * Recursive helper function for finding a key in B+trees.
@@ -351,17 +376,17 @@ public class BpTreeMap <K extends Comparable <K>, V>{
 	    return rt; //return right node
 
 	}
- 
 
-/********************************************************************************
-    * Make a new root, linking to left and right child node, separated by a divider key.
+
+    /********************************************************************************
+     * Make a new root, linking to left and right child node, separated by a divider key.
      * @param ref0  the reference to the left child node
      * @param key0  the divider key - largest left
      * @param ref1  the reference to the right child node
      * @return  the node for the new root
      */
     private Node makeRoot (Node ref0, K key0, Node ref1){
-        Node nr   = new Node (ORDER, false);                                           // make a node to become the new root
+        Node nr   = new Node (ORDER, false);                          // make a node to become the new root
         nr.nKeys  = 1;                                                
         nr.ref[0] = ref0;                                             // reference to left node
         nr.key[0] = key0;                                             // divider key - largest left
@@ -432,12 +457,13 @@ public class BpTreeMap <K extends Comparable <K>, V>{
 
         if (RANDOMLY) {
             Random rng = new Random ();
-            for (int i = 1; i <= totalKeys; i += 2) bpt.put (rng.nextInt (2 * totalKeys), i * i);
+            for (int i = 1; i <= totalKeys; i += 2)
+                bpt.put (rng.nextInt (2 * totalKeys), i * i);
         } else {
-            for (int i = 1; i <= totalKeys; i += 2) bpt.put (i, i * i);
+            for (int i = 1; i <= totalKeys; i += 2)
+                bpt.put (i, i * i);
         } // if
 
-        bpt.print (bpt.root, 0);
         for (int i = 0; i <= totalKeys; i++) {
             out.println ("key = " + i + " value = " + bpt.get (i));
         } // for
