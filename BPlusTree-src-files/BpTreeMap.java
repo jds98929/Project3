@@ -202,7 +202,7 @@ public class BpTreeMap <K extends Comparable <K>, V>{
     public K lastKey () 
     {
 	Node last = root;                                              // copy of root
-	Node last_child = (Node)last.ref[last.nKeys];                       // rightmost child of copy
+	Node last_child = (Node)last.ref[last.nKeys];                  // rightmost child of copy
 	while (last_child.nKeys > 0){                                  // while right child exists
 	    last = last_child;                                           
 	    last_child = (Node)last_child.ref[last_child.nKeys];       // traverse right and down the tree 
@@ -282,6 +282,7 @@ public class BpTreeMap <K extends Comparable <K>, V>{
 		    wedge (key, ref, n, n.find (key), true);                     // wedge (key, ref) pair in at position i
 		} else {                                                         // current node is full
 		    rt = split (key, ref, n, true);                              // split current node, return right sibling
+		    rt.isLeaf = true;                                            // right sibling is leaf
 		    n.ref[n.nKeys] = rt;                                         // link leaf n to leaf rt
 		    if (n == root && rt != null) {
 			root = makeRoot (n, n.key[n.nKeys-1], rt);               // make a new root
@@ -311,7 +312,7 @@ public class BpTreeMap <K extends Comparable <K>, V>{
 			parent = (Node)parent.ref[i];                            
 			i = parent.find(rt.key[0]);                              // find parent of rt 
 		    } // while                                                       
-		    i = i-1;
+ 		    i = i-1;
 		    lt = (Node)parent.ref[i];                                    // left sibling
 		    largest_left = lt.key[lt.nKeys-1];                           // largest left value 
 		    if (parent.nKeys < ORDER - 1){                               // if parent is not full
@@ -330,13 +331,14 @@ public class BpTreeMap <K extends Comparable <K>, V>{
 			    i = rt.find(largest_left);
 			    rt.ref[i+1]=(Node)n.ref[lt.nKeys];                   // set child of key after divider key
 			} // else
-			if (!lt.isLeaf) lt.key[lt.nKeys-1] = null;               // remove largest left from left sibling if internal
 			largest_left = parent.key[parent.nKeys-1];               // old largest left becomes new largest left           
 			lt = parent;                                             // parent becomes the left sibling
 			if (lt == root){                                         // if new left sibling is a root
 			    root = makeRoot (lt, lt.key[lt.nKeys-1], rt);        // create a new root
 		            hasSplit = false;                                    // split resolved
 			} // if
+			if (!lt.isLeaf) lt.key[lt.nKeys-1] = null;       // remove largest left from left sibling if interna
+
 			
 		    } // while
 
